@@ -1,28 +1,31 @@
-import Enums.CopyStatus;
-import Exceptions.InvalidOperationException;
+package operations;
+
+import entity.BookCopy;
+import entity.Reader;
+import enums.CopyStatus;
+import exceptions.InvalidOperationException;
+import services.OperationResult;
 
 /**
  * проверить возможность выдачи
- * поменять статус BookCopy
- * вернуть OperationResult
+ * поменять статус entity.BookCopy
+ * вернуть services.OperationResult
  */
 public class BorrowOperation extends LibraryOperation {
+
     private final BookCopy copy;
     private final int days;
 
     public BorrowOperation(Reader reader, BookCopy copy, int days) throws InvalidOperationException {
         super(reader);
-        validate(copy, days);
+        validate(copy);
         this.copy = copy;
         this.days = days;
     }
 
-    public void validate(BookCopy copy, int days){
+    public void validate(BookCopy copy) {
         if (copy == null) {
             throw new InvalidOperationException("Экземпляр книги обязателен");
-        }
-        if (days < 1 || days > 30){
-            throw new InvalidOperationException("Некорректно указаны дни");
         }
     }
 
@@ -37,7 +40,7 @@ public class BorrowOperation extends LibraryOperation {
     @Override
     public OperationResult execute() {
         copy.markBorrowed();
-        if (copy.checkStatusBookCopy() == CopyStatus.BORROWED) {
+        if (copy.getStatus() == CopyStatus.BORROWED) {
             return OperationResult.success(
                     getOperationId(),
                     "operation success"

@@ -1,18 +1,22 @@
-import Exceptions.InvalidOperationException;
+package operations;
+
+import entity.Reader;
+import exceptions.InvalidOperationException;
+import services.OperationResult;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * `LibraryOperation` хранит общие данные операции
+ * `operations.LibraryOperation` хранит общие данные операции
  */
 public abstract class LibraryOperation {
     private final String operationId;
     private final LocalDateTime createdAt;
     private final Reader reader;
 
-    protected LibraryOperation(Reader reader) throws InvalidOperationException{
-        if (reader == null){
+    protected LibraryOperation(Reader reader) throws InvalidOperationException {
+        if (reader == null) {
             throw new InvalidOperationException("Читатель обязателен");
         }
         this.operationId = String.valueOf(UUID.randomUUID());

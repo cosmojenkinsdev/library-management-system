@@ -1,12 +1,16 @@
-import Enums.LoanStatus;
-import Exceptions.InvalidOperationException;
+package services;
+
+import entity.BookCopy;
+import entity.Reader;
+import enums.LoanStatus;
+import exceptions.InvalidOperationException;
 
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * `Loan` — это факт выдачи конкретного экземпляра книги конкретному читателю.
+ * `services.Loan` — это факт выдачи конкретного экземпляра книги конкретному читателю.
  */
 public class Loan {
     private final String loanId;
@@ -16,7 +20,7 @@ public class Loan {
     private final LocalDate dueDate;
     private LoanStatus status;
 
-    public Loan(Reader reader, BookCopy copy, LocalDate borrowedAt, LocalDate dueDate, LoanStatus status) {
+    public Loan(Reader reader, BookCopy copy, LocalDate borrowedAt, LocalDate dueDate) {
         validate(reader, copy, borrowedAt, dueDate);
         this.loanId = String.valueOf(UUID.randomUUID());
         this.reader = reader;
@@ -46,7 +50,7 @@ public class Loan {
         return dueDate;
     }
 
-    public LoanStatus checkStatus() {
+    public LoanStatus getStatus() {
         return status;
     }
 
@@ -63,41 +67,43 @@ public class Loan {
 
     @Override
     public String toString() {
-        return "Loan{" +
-                "loanId='" + loanId + '\'' +
-                ", reader=" + reader +
-                ", copy=" + copy +
-                ", borrowedAt=" + borrowedAt +
-                ", dueDate=" + dueDate +
-                ", status=" + status +
+        return "Фактические выдачи: " +
+                "loanId = " + loanId +
+                ", reader = " + reader +
+                ", copy = " + copy +
+                ", borrowedAt = " + borrowedAt +
+                ", dueDate = " + dueDate +
+                ", status = " + status +
                 '}';
     }
 
     private void validate(Reader reader,
                           BookCopy copy,
                           LocalDate borrowedAt,
-                          LocalDate dueDate){
-        if (reader == null){
+                          LocalDate dueDate) {
+        if (reader == null) {
             throw new InvalidOperationException("Читатель должен быть");
         }
-        if (copy == null){
+        if (copy == null) {
             throw new InvalidOperationException("Экземпляр книги должен быть");
         }
-        if (borrowedAt == null){
-            throw new InvalidOperationException("borrowedAt должен быть");
+        if (borrowedAt == null || borrowedAt.isAfter(dueDate)) {
+            throw new InvalidOperationException("borrowedAt должен быть, а также должно быть раньше dueDate");
         }
-        if (dueDate == null){
-            throw new InvalidOperationException("dueDate должен быть");
+        if (dueDate == null || dueDate.isBefore(borrowedAt)) {
+            throw new InvalidOperationException("dueDate должен быть, а также должен быть позже borrowedAt");
         }
     }
-    public void markReturned() throws InvalidOperationException{
-        if (status != LoanStatus.ACTIVE){
+
+    public void markReturned() throws InvalidOperationException {
+        if (status != LoanStatus.ACTIVE) {
             throw new InvalidOperationException("Статус книги должен быть ACTIVE, чтобы стать RETURNED");
         }
         this.status = LoanStatus.RETURNED;
     }
-    public void markLost() throws InvalidOperationException{
-        if (status != LoanStatus.ACTIVE){
+
+    public void markLost() throws InvalidOperationException {
+        if (status != LoanStatus.ACTIVE) {
             throw new InvalidOperationException("Статус книги должен быть ACTIVE, чтобы стать LOST");
         }
         status = LoanStatus.LOST;

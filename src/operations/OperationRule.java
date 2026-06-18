@@ -1,3 +1,5 @@
+package operations;
+
 import java.util.Optional;
 
 @FunctionalInterface
