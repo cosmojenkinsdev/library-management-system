@@ -1,6 +1,7 @@
-import Enums.BookType;
-import Exceptions.InvalidBookException;
-import Exceptions.InvalidReaderException;
+package entity;
+
+import enums.BookType;
+import exceptions.InvalidBookException;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public final class Book {
                 String title,
                 String author,
                 int publishYear,
-                BookType type){
+                BookType type) {
         validate(isbn, title, author, publishYear, type);
         this.isbn = isbn;
         this.title = title;
@@ -64,17 +65,17 @@ public final class Book {
     public String toString() {
         return "Информация по книге: " +
                 "isbn = " + isbn +
-                ", название =" + title +
+                ", название = " + title +
                 ", автор = " + author +
                 ", год выпуска = " + publishYear +
                 ", тип книги = " + type;
     }
 
     private void validate(String isbn,
-                         String title,
-                         String author,
-                         int publishYear,
-                         BookType type) throws InvalidBookException{
+                          String title,
+                          String author,
+                          int publishYear,
+                          BookType type) throws InvalidBookException {
         if (isbn == null || isbn.isBlank()) {
             throw new InvalidBookException("readerId обязан быть");
         }

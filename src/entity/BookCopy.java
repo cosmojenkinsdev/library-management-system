@@ -1,11 +1,13 @@
-import Enums.CopyStatus;
-import Exceptions.InvalidBookCopyException;
-import Exceptions.InvalidBookException;
+package entity;
+
+import enums.CopyStatus;
+import exceptions.InvalidBookCopyException;
+import exceptions.InvalidBookException;
 
 import java.util.Objects;
 
 /**
- * `BookCopy` — это конкретный экземпляр книги.
+ * `entity.BookCopy` — это конкретный экземпляр книги.
  */
 public class BookCopy {
     private final String copyId;
@@ -41,44 +43,44 @@ public class BookCopy {
     @Override
     public String toString() {
         return "Экземпляр нашей книги: " +
-                "id конкретного экземпляра='" + copyId + '\'' +
+                "id конкретного экземпляра = " + copyId +
                 ", книга = " + book +
                 ", статус книги = " + status;
     }
 
     public void markBorrowed() throws InvalidBookCopyException {
         if (this.status != CopyStatus.AVAILABLE) {
-            throw new InvalidBookException("Статус книги менять нельзя если статус уже BORROWED");
+            throw new InvalidBookCopyException("Статус книги менять нельзя если статус уже BORROWED");
         }
         this.status = CopyStatus.BORROWED;
     }
 
     public void markAvailable() throws InvalidBookCopyException {
         if (this.status != CopyStatus.BORROWED) {
-            throw new InvalidBookException("Статус книги менять нельзя если статус уже AVAILABLE/LOST");
+            throw new InvalidBookCopyException("Статус книги менять нельзя если статус уже AVAILABLE/LOST");
         }
         this.status = CopyStatus.AVAILABLE;
     }
 
     public void markLost() throws InvalidBookCopyException {
         if (this.status != CopyStatus.BORROWED) {
-            throw new InvalidBookException("Статус книги менять нельзя если статус уже BORROWED");
+            throw new InvalidBookCopyException("Статус книги менять нельзя если статус уже BORROWED");
         }
         this.status = CopyStatus.LOST;
     }
 
-    public CopyStatus checkStatusBookCopy() {
+    public CopyStatus getStatus() {
         return this.status;
     }
 
-    private void validate(String copyId, Book book, CopyStatus status){
-        if (copyId == null || copyId.isBlank()){
+    private void validate(String copyId, Book book, CopyStatus status) {
+        if (copyId == null || copyId.isBlank()) {
             throw new InvalidBookCopyException("ID у книги обязателен");
         }
-        if (book == null){
+        if (book == null) {
             throw new InvalidBookCopyException("У тебя же есть книга, да? Ведь есть???....");
         }
-        if (status == null){
+        if (status == null) {
             throw new InvalidBookCopyException("Статус книги обязателен");
         }
     }

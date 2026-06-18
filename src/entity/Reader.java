@@ -1,5 +1,7 @@
-import Enums.ReaderStatus;
-import Exceptions.InvalidReaderException;
+package entity;
+
+import enums.ReaderStatus;
+import exceptions.InvalidReaderException;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -17,7 +19,7 @@ public final class Reader {
             String readerId,
             String fullName,
             LocalDate birthDate,
-            ReaderStatus status){
+            ReaderStatus status) {
         validate(readerId, fullName, birthDate, status);
         this.readerId = readerId;
         this.fullName = fullName;
@@ -62,17 +64,17 @@ public final class Reader {
     }
 
     private void validate(String readerId,
-                         String fullName,
-                         LocalDate birthDate,
-                         ReaderStatus status) throws InvalidReaderException{
+                          String fullName,
+                          LocalDate birthDate,
+                          ReaderStatus status) throws InvalidReaderException {
         if (readerId == null || readerId.isBlank()) {
             throw new InvalidReaderException("readerId обязан быть");
         }
         if (fullName == null || fullName.isBlank()) {
             throw new InvalidReaderException("ФИО обязано быть");
         }
-        if (birthDate == null || birthDate.isAfter(LocalDate.of(2012, 1, 1))) {
-            throw new InvalidReaderException("День рождения обязано быть");
+        if (birthDate == null || birthDate.isAfter(LocalDate.now().minusYears(14))) {
+            throw new InvalidReaderException("День рождения обязано быть или читателю должно быть 14 лет");
         }
         if (status == null) {
             throw new InvalidReaderException("Статус обязан быть");

@@ -1,6 +1,6 @@
-package Exceptions;
+package exceptions;
 
-public class InvalidReaderException extends RuntimeException{
+public class InvalidReaderException extends RuntimeException {
     public InvalidReaderException(String message) {
         super(message);
     }
