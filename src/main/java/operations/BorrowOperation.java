@@ -8,8 +8,8 @@ import services.OperationResult;
 
 /**
  * проверить возможность выдачи
- * поменять статус entity.BookCopy
- * вернуть services.OperationResult
+ * поменять статус main.java.main.java.operations.operations.entity.BookCopy
+ * вернуть main.java.main.java.operations.operations.services.OperationResult
  */
 public class BorrowOperation extends LibraryOperation {
 

@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * `services.Loan` — это факт выдачи конкретного экземпляра книги конкретному читателю.
+ * `main.java.main.java.operations.operations.services.Loan` — это факт выдачи конкретного экземпляра книги конкретному читателю.
  */
 public class Loan {
     private final String loanId;

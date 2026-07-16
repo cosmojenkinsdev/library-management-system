@@ -2,12 +2,11 @@ package entity;
 
 import enums.CopyStatus;
 import exceptions.InvalidBookCopyException;
-import exceptions.InvalidBookException;
 
 import java.util.Objects;
 
 /**
- * `entity.BookCopy` — это конкретный экземпляр книги.
+ * `main.java.main.java.operations.operations.entity.BookCopy` — это конкретный экземпляр книги.
  */
 public class BookCopy {
     private final String copyId;

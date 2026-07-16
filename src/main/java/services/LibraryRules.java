@@ -57,9 +57,9 @@ public class LibraryRules {
 
     public void initBorrowRules() {
         /**
-         * operations.OperationRule<operations.BorrowOperation> ruleNull = new operations.OperationRule<operations.BorrowOperation>() {
+         * main.java.main.java.operations.operations.OperationRule<main.java.main.java.operations.operations.BorrowOperation> ruleNull = new main.java.main.java.operations.operations.OperationRule<main.java.main.java.operations.operations.BorrowOperation>() {
          *     @Override
-         *     public Optional<String> validate(operations.BorrowOperation operation) {
+         *     public Optional<String> validate(main.java.main.java.operations.operations.BorrowOperation operation) {
          *         if (operation == null) {
          *             return Optional.of("Операция обязательна");
          *         }
@@ -107,7 +107,7 @@ public class LibraryRules {
     public void initReturnRules() {
         returnRules.add(operation -> {
             if (operation.getLoan() == null) {
-                return Optional.of("services.Loan не может быть null");
+                return Optional.of("main.java.main.java.operations.operations.services.Loan не может быть null");
             }
             return Optional.empty();
         });
@@ -128,7 +128,7 @@ public class LibraryRules {
     public void initLostRules() {
         lostRules.add(operation -> {
             if (operation.getLoan() == null) {
-                return Optional.of("services.Loan не может быть null");
+                return Optional.of("main.java.main.java.operations.operations.services.Loan не может быть null");
             }
             return Optional.empty();
         });
