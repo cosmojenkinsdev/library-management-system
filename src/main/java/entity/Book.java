@@ -2,6 +2,7 @@ package entity;
 
 import enums.BookType;
 import exceptions.InvalidBookException;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -9,13 +10,21 @@ import java.util.Objects;
 /**
  * Класс книги как библиографической сущности.
  */
-public final class Book {
-    private final String isbn;
-    private final String title;
-    private final String author;
-    private final int publishYear;
-    private final BookType type;
 
+@Entity
+@Table(name = "books")
+public class Book {
+
+    @Id
+    private String isbn;
+    //private Long id;
+    private String title;
+    private String author;
+    private int publishYear;
+    @Enumerated(EnumType.STRING)
+    private BookType type;
+
+    protected Book(){}
 
     public Book(String isbn,
                 String title,
@@ -29,6 +38,15 @@ public final class Book {
         this.publishYear = publishYear;
         this.type = type;
     }
+
+
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
 
     public String getIsbn() {
         return isbn;
@@ -77,20 +95,20 @@ public final class Book {
                           int publishYear,
                           BookType type) throws InvalidBookException {
         if (isbn == null || isbn.isBlank()) {
-            throw new InvalidBookException("readerId обязан быть");
+            throw new InvalidBookException("isbn обязан быть");
         }
         if (title == null || title.isBlank()) {
-            throw new InvalidBookException("ФИО обязано быть");
+            throw new InvalidBookException("title обязано быть");
         }
         if (author == null || author.isBlank()) {
             throw new InvalidBookException("Автор обязан быть");
         }
         if (publishYear < LocalDate.of(1450, 1, 1).getYear() ||
                 publishYear > LocalDate.now().getYear()) {
-            throw new InvalidBookException("День рождения обязано быть");
+            throw new InvalidBookException("Год публикации обязан быть");
         }
         if (type == null) {
-            throw new InvalidBookException("Статус обязан быть");
+            throw new InvalidBookException("Тип обязан быть");
         }
     }
 }

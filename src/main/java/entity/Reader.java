@@ -2,6 +2,9 @@ package entity;
 
 import enums.ReaderStatus;
 import exceptions.InvalidReaderException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -9,11 +12,16 @@ import java.util.Objects;
 /**
  * Класс читателя библиотеки.
  */
-public final class Reader {
-    private final String readerId;
-    private final String fullName;
-    private final LocalDate birthDate;
-    private final ReaderStatus status;
+@Entity
+@Table(name = "readers")
+public class Reader {
+    @Id
+    private String readerId;
+    private String fullName;
+    private LocalDate birthDate;
+    private ReaderStatus status;
+
+    protected Reader(){}
 
     public Reader(
             String readerId,
