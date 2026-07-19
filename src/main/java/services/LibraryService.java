@@ -1,6 +1,7 @@
 package services;
 
 import entity.BookCopy;
+import entity.Loan;
 import entity.Reader;
 import enums.CopyStatus;
 import enums.LoanStatus;

@@ -107,7 +107,7 @@ public class LibraryRules {
     public void initReturnRules() {
         returnRules.add(operation -> {
             if (operation.getLoan() == null) {
-                return Optional.of("main.java.main.java.operations.operations.services.Loan не может быть null");
+                return Optional.of("main.java.main.java.operations.operations.entity.Loan не может быть null");
             }
             return Optional.empty();
         });
@@ -128,7 +128,7 @@ public class LibraryRules {
     public void initLostRules() {
         lostRules.add(operation -> {
             if (operation.getLoan() == null) {
-                return Optional.of("main.java.main.java.operations.operations.services.Loan не может быть null");
+                return Optional.of("main.java.main.java.operations.operations.entity.Loan не может быть null");
             }
             return Optional.empty();
         });

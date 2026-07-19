@@ -2,16 +2,24 @@ package entity;
 
 import enums.CopyStatus;
 import exceptions.InvalidBookCopyException;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
-/**
- * `main.java.main.java.operations.operations.entity.BookCopy` — это конкретный экземпляр книги.
- */
+
+@Entity
+@Table(name = "book_copies")
 public class BookCopy {
-    private final String copyId;
-    private final Book book;
+    @Id
+    private String copyId;
+    @ManyToOne
+    @JoinColumn(name = "book_isbn")
+    private Book book;
+    @Enumerated(EnumType.STRING)
     private CopyStatus status;
+
+    protected BookCopy() {
+    }
 
     public BookCopy(String copyId, Book book, CopyStatus status) throws InvalidBookCopyException {
         validate(copyId, book, status);

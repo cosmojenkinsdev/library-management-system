@@ -39,15 +39,6 @@ public class Book {
         this.type = type;
     }
 
-
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
-
     public String getIsbn() {
         return isbn;
     }

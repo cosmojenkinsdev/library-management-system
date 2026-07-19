@@ -3,7 +3,7 @@ package operations;
 import entity.Reader;
 import enums.LoanStatus;
 import exceptions.InvalidOperationException;
-import services.Loan;
+import entity.Loan;
 import services.OperationResult;
 
 public class ReturnOperation extends LibraryOperation {

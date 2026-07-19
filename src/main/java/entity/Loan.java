@@ -1,25 +1,31 @@
-package services;
+package entity;
 
-import entity.BookCopy;
-import entity.Reader;
 import enums.LoanStatus;
 import exceptions.InvalidOperationException;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * `main.java.main.java.operations.operations.services.Loan` — это факт выдачи конкретного экземпляра книги конкретному читателю.
- */
+
+@Entity
+@Table(name = "loans")
 public class Loan {
-    private final String loanId;
-    private final Reader reader;
-    private final BookCopy copy;
-    private final LocalDate borrowedAt;
-    private final LocalDate dueDate;
+    @Id
+    private String loanId;
+    @ManyToOne
+    @JoinColumn(name = "reader_id")
+    private Reader reader;
+    @ManyToOne
+    @JoinColumn(name = "copy_id")
+    private BookCopy copy;
+    private LocalDate borrowedAt;
+    private LocalDate dueDate;
+    @Enumerated(EnumType.STRING)
     private LoanStatus status;
 
+    protected Loan(){}
     public Loan(Reader reader, BookCopy copy, LocalDate borrowedAt, LocalDate dueDate) {
         validate(reader, copy, borrowedAt, dueDate);
         this.loanId = String.valueOf(UUID.randomUUID());
@@ -87,11 +93,11 @@ public class Loan {
         if (copy == null) {
             throw new InvalidOperationException("Экземпляр книги должен быть");
         }
-        if (borrowedAt == null || borrowedAt.isAfter(dueDate)) {
-            throw new InvalidOperationException("borrowedAt должен быть, а также должно быть раньше dueDate");
+        if (borrowedAt == null || dueDate == null) {
+            throw new InvalidOperationException("Обе даты обязательны");
         }
-        if (dueDate == null || dueDate.isBefore(borrowedAt)) {
-            throw new InvalidOperationException("dueDate должен быть, а также должен быть позже borrowedAt");
+        if (borrowedAt.isAfter(dueDate)) {
+            throw new InvalidOperationException("Дата выдачи не может быть позже срока возврата");
         }
     }
 

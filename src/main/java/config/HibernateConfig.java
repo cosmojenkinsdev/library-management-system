@@ -1,5 +1,9 @@
 package config;
 
+import entity.Book;
+import entity.BookCopy;
+import entity.Loan;
+import entity.Reader;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -18,7 +22,11 @@ public class HibernateConfig {
                 .setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect")
                 .setProperty("hibernate.hbm2ddl.auto", "update")
                 .setProperty("hibernate.show_sql", "true")
-                .setProperty("hibernate.format_sql", "true");
+                .setProperty("hibernate.format_sql", "true")
+                .addAnnotatedClass(Book.class)
+                .addAnnotatedClass(Reader.class)
+                .addAnnotatedClass(BookCopy.class)
+                .addAnnotatedClass(Loan.class);
         return configuration.buildSessionFactory();
     }
     // метод получения SessionFactory
