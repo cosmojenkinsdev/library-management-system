@@ -1,10 +1,9 @@
 package repository;
 
-import org.hibernate.SessionFactory;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +24,8 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
             session.persist(entity);
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()){
-            transaction.rollback();
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
             }
             throw e;
         }
@@ -41,7 +40,7 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
             transaction.commit();
             return Optional.ofNullable(entity);
         } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()){
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
@@ -51,7 +50,7 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
     @Override
     public List<T> findAll() {
         Transaction transaction = null;
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             String hql = "from " + entityClass;
             transaction.commit();
@@ -59,7 +58,7 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
                     .createQuery(hql, entityClass)
                     .getResultList();
         } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()){
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
@@ -74,7 +73,7 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
             session.remove(entity);
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()){
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
