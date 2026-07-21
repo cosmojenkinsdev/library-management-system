@@ -1,9 +1,9 @@
 package operations;
 
+import entity.Loan;
 import entity.Reader;
 import enums.LoanStatus;
 import exceptions.InvalidOperationException;
-import entity.Loan;
 import services.OperationResult;
 
 /**

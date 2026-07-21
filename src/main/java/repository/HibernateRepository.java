@@ -52,7 +52,7 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            String hql = "from " + entityClass;
+            String hql = "from " + entityClass.getName();
             transaction.commit();
             return session
                     .createQuery(hql, entityClass)

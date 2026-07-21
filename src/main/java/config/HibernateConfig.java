@@ -9,10 +9,8 @@ import org.hibernate.cfg.Configuration;
 
 public class HibernateConfig {
 
-    // поле для SessionFactory
-    private static final SessionFactory sessionFactory = createSessionFactory();
+    private static final SessionFactory SESSION_FACTORY = createSessionFactory();
 
-    // метод создания SessionFactory
     private static SessionFactory createSessionFactory() {
         Configuration configuration = new Configuration()
                 .setProperty("hibernate.connection.driver_class", "org.postgresql.Driver")
@@ -29,16 +27,14 @@ public class HibernateConfig {
                 .addAnnotatedClass(Loan.class);
         return configuration.buildSessionFactory();
     }
-    // метод получения SessionFactory
 
     public static SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return SESSION_FACTORY;
     }
-    // метод закрытия SessionFactory
 
     public static void closeSessionFactory() {
-        if (!sessionFactory.isClosed()) {
-            sessionFactory.close();
+        if (!SESSION_FACTORY.isClosed()) {
+            SESSION_FACTORY.close();
         }
     }
 }

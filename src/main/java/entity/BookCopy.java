@@ -2,7 +2,15 @@ package entity;
 
 import enums.CopyStatus;
 import exceptions.InvalidBookCopyException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.util.Objects;
 
@@ -12,9 +20,10 @@ import java.util.Objects;
 public class BookCopy {
     @Id
     private String copyId;
-    @ManyToOne
-    @JoinColumn(name = "book_isbn")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_isbn", nullable = false)
     private Book book;
+    @Column(name = "copy_status", length = 256, nullable = false)
     @Enumerated(EnumType.STRING)
     private CopyStatus status;
 

@@ -2,7 +2,12 @@ package entity;
 
 import enums.ReaderStatus;
 import exceptions.InvalidReaderException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -15,12 +20,16 @@ import java.util.Objects;
 public class Reader {
     @Id
     private String readerId;
+    @Column(name = "full_name", length = 256, nullable = false)
     private String fullName;
+    @Column(name = "birth_date", length = 256, nullable = false)
     private LocalDate birthDate;
+    @Column(name = "reader_status", length = 256, nullable = false)
     @Enumerated(EnumType.STRING)
     private ReaderStatus status;
 
-    protected Reader(){}
+    protected Reader() {
+    }
 
     public Reader(
             String readerId,

@@ -2,7 +2,15 @@ package entity;
 
 import enums.LoanStatus;
 import exceptions.InvalidOperationException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -14,18 +22,24 @@ import java.util.UUID;
 public class Loan {
     @Id
     private String loanId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reader_id")
     private Reader reader;
-    @ManyToOne
-    @JoinColumn(name = "copy_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "copy_id", nullable = false)
     private BookCopy copy;
+    @Column(name = "borrowed_at", length = 256, nullable = false)
     private LocalDate borrowedAt;
+    @Column(name = "due_date", length = 256, nullable = false)
     private LocalDate dueDate;
+    @Column(name = "loan_status", length = 256, nullable = false)
     @Enumerated(EnumType.STRING)
     private LoanStatus status;
 
-    protected Loan(){}
+    protected Loan() {
+
+    }
+
     public Loan(Reader reader, BookCopy copy, LocalDate borrowedAt, LocalDate dueDate) {
         validate(reader, copy, borrowedAt, dueDate);
         this.loanId = String.valueOf(UUID.randomUUID());

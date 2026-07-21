@@ -2,7 +2,12 @@ package entity;
 
 import enums.BookType;
 import exceptions.InvalidBookException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -17,14 +22,19 @@ public class Book {
 
     @Id
     private String isbn;
-    //private Long id;
+    @Column(name = "title", length = 256, nullable = false)
     private String title;
+    @Column(name = "author", length = 256, nullable = false)
     private String author;
+    @Column(name = "publish_year", length = 256, nullable = false)
     private int publishYear;
+    @Column(name = "book_type", length = 256, nullable = false)
     @Enumerated(EnumType.STRING)
     private BookType type;
 
-    protected Book(){}
+    protected Book() {
+
+    }
 
     public Book(String isbn,
                 String title,
