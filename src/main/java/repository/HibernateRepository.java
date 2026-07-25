@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
     private final Class<T> entityClass;
@@ -16,53 +17,44 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
         this.sessionFactory = sessionFactory;
     }
 
-    @Override
-    public void save(T entity) {
+    protected <R> R executeInTransaction(Function<Session, R> func) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            session.persist(entity);
+            session.beginTransaction();
+            R result = func.apply(session);
             transaction.commit();
+            return result;
         } catch (RuntimeException e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
         }
+    }
+
+    @Override
+    public void save(T entity) {
+        executeInTransaction(s -> {
+            s.persist(entity);
+            return null;
+        });
     }
 
     @Override
     public Optional<T> findById(ID id) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            T entity = session.find(entityClass, id);
-            transaction.commit();
-            return Optional.ofNullable(entity);
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        executeInTransaction(s -> {
+            s.find(entityClass, id);
+            return Optional.empty();
+        });
+        return Optional.empty();
     }
 
     @Override
     public List<T> findAll() {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            String hql = "from " + entityClass.getName();
-            transaction.commit();
-            return session
-                    .createQuery(hql, entityClass)
-                    .getResultList();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        String hql = "from " + entityClass.getSimpleName();
+        return executeInTransaction(session -> session
+                .createQuery(hql, entityClass)
+                .getResultList());
     }
 
     @Override
