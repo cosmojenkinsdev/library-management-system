@@ -20,7 +20,7 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
     protected <R> R executeInTransaction(Function<Session, R> func) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             R result = func.apply(session);
             transaction.commit();
             return result;
@@ -59,16 +59,9 @@ public abstract class HibernateRepository<T, ID> implements Repository<T, ID> {
 
     @Override
     public void delete(T entity) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        executeInTransaction(session -> {
             session.remove(entity);
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+            return Optional.empty();
+        });
     }
 }
