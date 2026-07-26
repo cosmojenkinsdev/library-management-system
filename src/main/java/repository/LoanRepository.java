@@ -12,8 +12,19 @@ public class LoanRepository extends HibernateRepository<Loan, String> {
         super(Loan.class, sessionFactory);
     }
 
-    public Loan findActiveLoansByReader(Reader reader){}
-    public Loan findOverdueLoans(LocalDate date){}
-    public int countActiveLoansByReader(Reader reader){}
-    public Loan findActiveLoan(Reader reader, BookCopy copy){}
+    public Loan findActiveLoansByReader(Reader reader) {
+        return null;
+    }
+
+    public Loan findOverdueLoans(LocalDate date) {
+        return null;
+    }
+
+    public int countActiveLoansByReader(Reader reader) {
+        return 0;
+    }
+
+    public Loan findActiveLoan(Reader reader, BookCopy copy) {
+        return null;
+    }
 }
