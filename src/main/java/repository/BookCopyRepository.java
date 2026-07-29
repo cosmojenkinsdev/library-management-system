@@ -1,19 +1,23 @@
 package repository;
 
 import entity.BookCopy;
+import enums.CopyStatus;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
 
 public class BookCopyRepository extends HibernateRepository<BookCopy, String> {
-    protected BookCopyRepository(SessionFactory sessionFactory) {
+    public BookCopyRepository(SessionFactory sessionFactory) {
         super(BookCopy.class, sessionFactory);
     }
     public List<BookCopy> findAvailableCopiesByIsbn(String isbn) {
-        executeInTransaction(session -> {
-
-            return
-        });
-        return result;
+        return executeInTransaction(session -> session.createQuery("""
+                        FROM BookCopy AS bc
+                        WHERE status = :status
+                        AND bc.book = :isbn
+                        """)
+                .setParameter("status", CopyStatus.AVAILABLE.name())
+                .setParameter("isbn", isbn)
+                .getResultList());
     }
 }

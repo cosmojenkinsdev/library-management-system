@@ -10,34 +10,39 @@ import exceptions.InvalidBookCopyException;
 import exceptions.InvalidOperationException;
 import exceptions.InvalidReaderException;
 import operations.BorrowOperation;
-import operations.ReturnOperation;
-import operations.LostOperation;
 import operations.LibraryOperation;
+import operations.LostOperation;
+import operations.ReturnOperation;
+import repository.BookCopyRepository;
+import repository.LoanRepository;
+import repository.ReaderRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 public class LibraryService {
-    private final HashSet<Reader> readers;
-    private final HashSet<BookCopy> copies;
-    private final List<Loan> loans;
+    private final ReaderRepository readerRepository;
+    private final BookCopyRepository bookCopyRepository;
+    private final LoanRepository loanRepository;
     private final OperationJournal journal;
     private final LibraryRules rules;
     private final String BAD_MSG = "Операция завершилась c ошибкой";
 
     public LibraryService(
+            ReaderRepository readerRepository,
+            BookCopyRepository bookCopyRepository,
+            LoanRepository loanRepository,
             OperationJournal journal,
             LibraryRules rules
     ) {
-        readers = new HashSet<>();
-        copies = new HashSet<>();
-        loans = new ArrayList<>();
-        this.rules = rules;
+        this.readerRepository = readerRepository;
+        this.bookCopyRepository = bookCopyRepository;
+        this.loanRepository = loanRepository;
         this.journal = journal;
+        this.rules = rules;
         validate();
     }
 
@@ -50,31 +55,37 @@ public class LibraryService {
         }
     }
 
+    //    public void addReader(Reader reader) {
+//        if (reader == null) {
+//            throw new InvalidReaderException("Читатель не может быть null");
+//        }
+//        boolean controlRID = readerRepository.stream()
+//                .anyMatch(anyReader -> anyReader.getReaderId().equals(reader.getReaderId()));
+//        if (controlRID) {
+//            throw new InvalidReaderException("Такой читатель уже есть по такому readerID");
+//        }
+//        readerRepository.add(reader);
+//    }
     public void addReader(Reader reader) {
-        if (reader == null) {
-            throw new InvalidReaderException("Читатель не может быть null");
-        }
-        boolean controlRID = readers.stream()
-                .anyMatch(anyReader -> anyReader.getReaderId().equals(reader.getReaderId()));
-        if (controlRID) {
-            throw new InvalidReaderException("Такой читатель уже есть по такому readerID");
-        }
-        readers.add(reader);
+        readerRepository.save(reader);
     }
 
     /**
      * Аналогично
      */
+//    public void addCopy(BookCopy copy) {
+//        if (copy == null) {
+//            throw new InvalidBookCopyException("Экземпляр книги не может быть null");
+//        }
+//        boolean controlBID = bookCopyRepository.stream()
+//                .anyMatch(anyCopy -> anyCopy.getCopyId().equals(copy.getCopyId()));
+//        if (controlBID) {
+//            throw new InvalidBookCopyException("Такая книга уже есть по такому copyID");
+//        }
+//        bookCopyRepository.add(copy);
+//    }
     public void addCopy(BookCopy copy) {
-        if (copy == null) {
-            throw new InvalidBookCopyException("Экземпляр книги не может быть null");
-        }
-        boolean controlBID = copies.stream()
-                .anyMatch(anyCopy -> anyCopy.getCopyId().equals(copy.getCopyId()));
-        if (controlBID) {
-            throw new InvalidBookCopyException("Такая книга уже есть по такому copyID");
-        }
-        copies.add(copy);
+        bookCopyRepository.save(copy);
     }
 
     /**
@@ -85,7 +96,7 @@ public class LibraryService {
         BorrowOperation borrowOperation = new BorrowOperation(reader, copy, days);
         Optional<String> error = rules.validateBorrow(borrowOperation);
 
-        if (!readers.contains(reader)) {
+        if (readerRepository.findById(reader.getReaderId()).isEmpty()) {
             OperationResult result = new OperationResult(
                     OperationStatus.REJECTED,
                     BAD_MSG,
@@ -95,7 +106,7 @@ public class LibraryService {
             return result;
         }
 
-        if (!copies.contains(copy)) {
+        if (bookCopyRepository.findById(copy.getCopyId()).isEmpty()) {
             OperationResult result = reject(borrowOperation);
             journal.add(result);
             return result;
@@ -115,25 +126,18 @@ public class LibraryService {
 
         borrowOperation.execute();
         Loan loan = new Loan(reader, copy, LocalDate.now(), LocalDate.now().plusDays(days));
-        loans.add(loan);
+        loanRepository.save(loan);
         OperationResult result = success(borrowOperation);
         journal.add(result);
         return result;
     }
 
     public Boolean validateLoanCount(Reader reader) {
-        return loans.stream()
-                .filter(loan -> loan.getReader().equals(reader)
-                        && loan.getStatus() == LoanStatus.ACTIVE)
-                .count() >= 3;
+        return loanRepository.countActiveLoansByReader(reader) >= 3;
     }
 
     private Optional<Loan> activeLoan(Reader reader, BookCopy copy) {
-        return loans.stream()
-                .filter(loan -> loan.getReader().equals(reader)
-                        && loan.getCopy().equals(copy)
-                        && loan.getStatus() == LoanStatus.ACTIVE)
-                .findFirst();
+        return loanRepository.findActiveLoan(reader, copy);
     }
 
     public OperationResult returnBook(Reader reader, BookCopy copy) {
@@ -211,61 +215,52 @@ public class LibraryService {
      * этот метод, я так понимаю, должен искать доступные копии по isbn и выдавать список,
      * где есть все копии данной книги
      */
+//    public List<BookCopy> findAvailableCopiesByIsbn(String isbn) {
+//        if (isbn == null || isbn.isBlank()) {
+//            throw new InvalidBookCopyException("isbn не может быть null");
+//        }
+//        return bookCopyRepository.stream()
+//                .filter(bookCopy -> bookCopy.getBook().getIsbn().equals(isbn)
+//                        && bookCopy.getStatus() == CopyStatus.AVAILABLE)
+//                .toList();
+//    }
     public List<BookCopy> findAvailableCopiesByIsbn(String isbn) {
-        if (isbn == null || isbn.isBlank()) {
-            throw new InvalidBookCopyException("isbn не может быть null");
-        }
-        return copies.stream()
-                .filter(bookCopy -> bookCopy.getBook().getIsbn().equals(isbn)
-                        && bookCopy.getStatus() == CopyStatus.AVAILABLE)
-                .toList();
+        return bookCopyRepository.findAvailableCopiesByIsbn(isbn);
     }
 
     /**
      * метод должен показывать, всех активных читателей
      */
     public List<Reader> getAllReaders() {
-        return List.copyOf(readers);
+        return readerRepository.findAll();
     }
 
     /**
      * такой же метод как и findAvailableCopiesByIsbn, только все копии
      */
     public List<BookCopy> getAllCopies() {
-        return List.copyOf(copies);
+        return bookCopyRepository.findAll();
     }
 
     /**
      * показывает все факты выдачи, которые были
      */
     public List<Loan> getAllLoans() {
-        return List.copyOf(loans);
+        return loanRepository.findAll();
     }
 
     /**
      * показывает все активные выдачи
      */
     public List<Loan> findActiveLoansByReader(Reader reader) {
-        if (reader == null) {
-            throw new InvalidReaderException("Читатель не может быть null");
-        }
-        return loans.stream()
-                .filter(loan -> loan.getReader().equals(reader)
-                        && loan.getStatus() == LoanStatus.ACTIVE)
-                .toList();
+        return loanRepository.findActiveLoansByReader(reader);
     }
 
     /**
      * показывает все завершенные выдачи
      */
     public List<Loan> findOverdueLoans(LocalDate date) {
-        if (date == null) {
-            throw new InvalidOperationException("Дата обязана быть");
-        }
-        return loans.stream()
-                .filter(loan -> loan.getStatus() == LoanStatus.ACTIVE
-                        && loan.getDueDate().isBefore(date))
-                .toList();
+        return loanRepository.findOverdueLoans(date);
     }
 
     /**

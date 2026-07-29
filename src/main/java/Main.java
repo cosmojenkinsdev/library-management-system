@@ -5,6 +5,10 @@ import entity.Reader;
 import enums.BookType;
 import enums.CopyStatus;
 import enums.ReaderStatus;
+import org.hibernate.SessionFactory;
+import repository.BookCopyRepository;
+import repository.LoanRepository;
+import repository.ReaderRepository;
 import services.LibraryRules;
 import services.LibraryService;
 import services.OperationJournal;
@@ -13,7 +17,11 @@ import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
+        SessionFactory sessionFactory = HibernateConfig.getSessionFactory();
         LibraryService libraryService = new LibraryService(
+                new ReaderRepository(sessionFactory),
+                new BookCopyRepository(sessionFactory),
+                new LoanRepository(sessionFactory),
                 new OperationJournal(),
                 new LibraryRules()
         );

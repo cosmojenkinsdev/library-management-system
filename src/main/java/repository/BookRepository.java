@@ -4,7 +4,7 @@ import entity.Book;
 import org.hibernate.SessionFactory;
 
 public class BookRepository extends HibernateRepository<Book, String> {
-    protected BookRepository(SessionFactory sessionFactory) {
+    public BookRepository(SessionFactory sessionFactory) {
         super(Book.class, sessionFactory);
     }
 
