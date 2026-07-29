@@ -3,12 +3,8 @@ package services;
 import entity.BookCopy;
 import entity.Loan;
 import entity.Reader;
-import enums.CopyStatus;
-import enums.LoanStatus;
 import enums.OperationStatus;
-import exceptions.InvalidBookCopyException;
 import exceptions.InvalidOperationException;
-import exceptions.InvalidReaderException;
 import operations.BorrowOperation;
 import operations.LibraryOperation;
 import operations.LostOperation;
@@ -19,7 +15,6 @@ import repository.ReaderRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,42 +50,52 @@ public class LibraryService {
         }
     }
 
-    //    public void addReader(Reader reader) {
-//        if (reader == null) {
-//            throw new InvalidReaderException("Читатель не может быть null");
-//        }
-//        boolean controlRID = readerRepository.stream()
-//                .anyMatch(anyReader -> anyReader.getReaderId().equals(reader.getReaderId()));
-//        if (controlRID) {
-//            throw new InvalidReaderException("Такой читатель уже есть по такому readerID");
-//        }
-//        readerRepository.add(reader);
-//    }
     public void addReader(Reader reader) {
         readerRepository.save(reader);
     }
 
-    /**
-     * Аналогично
-     */
-//    public void addCopy(BookCopy copy) {
-//        if (copy == null) {
-//            throw new InvalidBookCopyException("Экземпляр книги не может быть null");
-//        }
-//        boolean controlBID = bookCopyRepository.stream()
-//                .anyMatch(anyCopy -> anyCopy.getCopyId().equals(copy.getCopyId()));
-//        if (controlBID) {
-//            throw new InvalidBookCopyException("Такая книга уже есть по такому copyID");
-//        }
-//        bookCopyRepository.add(copy);
-//    }
     public void addCopy(BookCopy copy) {
         bookCopyRepository.save(copy);
     }
 
-    /**
-     * borrowBook я так понимаю это выданная книга и нужно проверить, выдалась или нет.
-     */
+    public Boolean validateLoanCount(Reader reader) {
+        return loanRepository.countActiveLoansByReader(reader) >= 3;
+    }
+
+    private Optional<Loan> activeLoan(Reader reader, BookCopy copy) {
+        return loanRepository.findActiveLoan(reader, copy);
+    }
+
+    private OperationResult processOperation(LibraryOperation libraryOperation, Optional<String> error) {
+        if (error.isPresent()) {
+            OperationResult result = reject(libraryOperation);
+            journal.add(result);
+            return result;
+        }
+        libraryOperation.execute();
+        OperationResult result = success(libraryOperation);
+        journal.add(result);
+        return result;
+    }
+
+    private <T extends LibraryOperation> OperationResult reject(T operation) {
+        return new OperationResult(
+                OperationStatus.REJECTED,
+                BAD_MSG,
+                operation.getOperationId(),
+                LocalDateTime.now());
+
+    }
+
+    private <T extends LibraryOperation> OperationResult success(T operation) {
+        String GOOD_MSG = "Операция завершилась успешно";
+        return new OperationResult(
+                OperationStatus.SUCCESS,
+                GOOD_MSG,
+                operation.getOperationId(),
+                LocalDateTime.now());
+    }
+
     public OperationResult borrowBook(Reader reader, BookCopy copy, int days) {
 
         BorrowOperation borrowOperation = new BorrowOperation(reader, copy, days);
@@ -132,17 +137,9 @@ public class LibraryService {
         return result;
     }
 
-    public Boolean validateLoanCount(Reader reader) {
-        return loanRepository.countActiveLoansByReader(reader) >= 3;
-    }
-
-    private Optional<Loan> activeLoan(Reader reader, BookCopy copy) {
-        return loanRepository.findActiveLoan(reader, copy);
-    }
-
     public OperationResult returnBook(Reader reader, BookCopy copy) {
         Optional<Loan> loan = activeLoan(reader, copy);
-        if (loan.isEmpty()) {
+        if (loanRepository.findActiveLoan(reader, copy).isEmpty()) {
             OperationResult operationResult = new OperationResult(
                     OperationStatus.REJECTED,
                     BAD_MSG,
@@ -151,27 +148,15 @@ public class LibraryService {
             journal.add(operationResult);
             return operationResult;
         }
-
+        // Немного запутался в архитектуре. В каком месте и как должен происходить коммит?
         ReturnOperation returnOperation = new ReturnOperation(reader, loan.get());
         Optional<String> error = rules.validateReturn(returnOperation);
-        if (error.isPresent()) {
-            OperationResult result = reject(returnOperation);
-            journal.add(result);
-            return result;
-        }
-
-        returnOperation.execute();
-        OperationResult result = success(returnOperation);
-        journal.add(result);
-        return result;
+        return processOperation(returnOperation, error);
     }
 
-    /**
-     * аналогично
-     */
     public OperationResult markLost(Reader reader, BookCopy copy, String reason) {
         Optional<Loan> loan = activeLoan(reader, copy);
-        if (loan.isEmpty()) {
+        if (loanRepository.findActiveLoan(reader, copy).isEmpty()) {
             OperationResult operationResult = new OperationResult(
                     OperationStatus.REJECTED,
                     BAD_MSG,
@@ -182,90 +167,33 @@ public class LibraryService {
         }
         LostOperation lostOperation = new LostOperation(reader, loan.get(), reason);
         Optional<String> error = rules.validateLost(lostOperation);
-        if (error.isPresent()) {
-            OperationResult result = reject(lostOperation);
-            journal.add(result);
-            return result;
-        }
-        lostOperation.execute();
-        OperationResult result = success(lostOperation);
-        journal.add(result);
-        return result;
+        return processOperation(lostOperation, error);
     }
 
-    private <T extends LibraryOperation> OperationResult reject(T operation) {
-        return new OperationResult(
-                OperationStatus.REJECTED,
-                BAD_MSG,
-                operation.getOperationId(),
-                LocalDateTime.now());
-
-    }
-
-    private <T extends LibraryOperation> OperationResult success(T operation) {
-        String GOOD_MSG = "Операция завершилась успешно";
-        return new OperationResult(
-                OperationStatus.SUCCESS,
-                GOOD_MSG,
-                operation.getOperationId(),
-                LocalDateTime.now());
-    }
-
-    /**
-     * этот метод, я так понимаю, должен искать доступные копии по isbn и выдавать список,
-     * где есть все копии данной книги
-     */
-//    public List<BookCopy> findAvailableCopiesByIsbn(String isbn) {
-//        if (isbn == null || isbn.isBlank()) {
-//            throw new InvalidBookCopyException("isbn не может быть null");
-//        }
-//        return bookCopyRepository.stream()
-//                .filter(bookCopy -> bookCopy.getBook().getIsbn().equals(isbn)
-//                        && bookCopy.getStatus() == CopyStatus.AVAILABLE)
-//                .toList();
-//    }
     public List<BookCopy> findAvailableCopiesByIsbn(String isbn) {
         return bookCopyRepository.findAvailableCopiesByIsbn(isbn);
     }
 
-    /**
-     * метод должен показывать, всех активных читателей
-     */
     public List<Reader> getAllReaders() {
         return readerRepository.findAll();
     }
 
-    /**
-     * такой же метод как и findAvailableCopiesByIsbn, только все копии
-     */
     public List<BookCopy> getAllCopies() {
         return bookCopyRepository.findAll();
     }
 
-    /**
-     * показывает все факты выдачи, которые были
-     */
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
     }
 
-    /**
-     * показывает все активные выдачи
-     */
     public List<Loan> findActiveLoansByReader(Reader reader) {
         return loanRepository.findActiveLoansByReader(reader);
     }
 
-    /**
-     * показывает все завершенные выдачи
-     */
     public List<Loan> findOverdueLoans(LocalDate date) {
         return loanRepository.findOverdueLoans(date);
     }
 
-    /**
-     * журнал всех операций
-     */
     public OperationJournal getJournal() {
         return journal;
     }
