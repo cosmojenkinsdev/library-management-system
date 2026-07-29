@@ -2,6 +2,12 @@ package entity;
 
 import enums.ReaderStatus;
 import exceptions.InvalidReaderException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -9,11 +15,21 @@ import java.util.Objects;
 /**
  * Класс читателя библиотеки.
  */
-public final class Reader {
-    private final String readerId;
-    private final String fullName;
-    private final LocalDate birthDate;
-    private final ReaderStatus status;
+@Entity
+@Table(name = "readers")
+public class Reader {
+    @Id
+    private String readerId;
+    @Column(name = "full_name", length = 256, nullable = false)
+    private String fullName;
+    @Column(name = "birth_date", length = 256, nullable = false)
+    private LocalDate birthDate;
+    @Column(name = "reader_status", length = 256, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ReaderStatus status;
+
+    protected Reader() {
+    }
 
     public Reader(
             String readerId,
@@ -74,7 +90,7 @@ public final class Reader {
             throw new InvalidReaderException("ФИО обязано быть");
         }
         if (birthDate == null || birthDate.isAfter(LocalDate.now().minusYears(14))) {
-            throw new InvalidReaderException("День рождения обязано быть или читателю должно быть 14 лет");
+            throw new InvalidReaderException("Дата рождения обязательна, возраст читателя должен быть не менее 14 лет");
         }
         if (status == null) {
             throw new InvalidReaderException("Статус обязан быть");

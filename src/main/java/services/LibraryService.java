@@ -1,6 +1,7 @@
 package services;
 
 import entity.BookCopy;
+import entity.Loan;
 import entity.Reader;
 import enums.CopyStatus;
 import enums.LoanStatus;
@@ -9,9 +10,9 @@ import exceptions.InvalidBookCopyException;
 import exceptions.InvalidOperationException;
 import exceptions.InvalidReaderException;
 import operations.BorrowOperation;
-import operations.LibraryOperation;
-import operations.LostOperation;
 import operations.ReturnOperation;
+import operations.LostOperation;
+import operations.LibraryOperation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

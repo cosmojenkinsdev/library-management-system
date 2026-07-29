@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * `operations.LibraryOperation` хранит общие данные операции
+ * `main.java.main.java.operations.operations.LibraryOperation` хранит общие данные операции
  */
 public abstract class LibraryOperation {
     private final String operationId;

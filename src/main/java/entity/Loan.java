@@ -1,24 +1,44 @@
-package services;
+package entity;
 
-import entity.BookCopy;
-import entity.Reader;
 import enums.LoanStatus;
 import exceptions.InvalidOperationException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * `services.Loan` — это факт выдачи конкретного экземпляра книги конкретному читателю.
- */
+
+@Entity
+@Table(name = "loans")
 public class Loan {
-    private final String loanId;
-    private final Reader reader;
-    private final BookCopy copy;
-    private final LocalDate borrowedAt;
-    private final LocalDate dueDate;
+    @Id
+    private String loanId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reader_id")
+    private Reader reader;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "copy_id", nullable = false)
+    private BookCopy copy;
+    @Column(name = "borrowed_at", length = 256, nullable = false)
+    private LocalDate borrowedAt;
+    @Column(name = "due_date", length = 256, nullable = false)
+    private LocalDate dueDate;
+    @Column(name = "loan_status", length = 256, nullable = false)
+    @Enumerated(EnumType.STRING)
     private LoanStatus status;
+
+    protected Loan() {
+
+    }
 
     public Loan(Reader reader, BookCopy copy, LocalDate borrowedAt, LocalDate dueDate) {
         validate(reader, copy, borrowedAt, dueDate);
@@ -87,11 +107,11 @@ public class Loan {
         if (copy == null) {
             throw new InvalidOperationException("Экземпляр книги должен быть");
         }
-        if (borrowedAt == null || borrowedAt.isAfter(dueDate)) {
-            throw new InvalidOperationException("borrowedAt должен быть, а также должно быть раньше dueDate");
+        if (borrowedAt == null || dueDate == null) {
+            throw new InvalidOperationException("Обе даты обязательны");
         }
-        if (dueDate == null || dueDate.isBefore(borrowedAt)) {
-            throw new InvalidOperationException("dueDate должен быть, а также должен быть позже borrowedAt");
+        if (borrowedAt.isAfter(dueDate)) {
+            throw new InvalidOperationException("Дата выдачи не может быть позже срока возврата");
         }
     }
 

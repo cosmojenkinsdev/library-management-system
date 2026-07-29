@@ -1,3 +1,4 @@
+import config.HibernateConfig;
 import entity.Book;
 import entity.BookCopy;
 import entity.Reader;
@@ -56,15 +57,17 @@ public class Main {
 //        System.out.println(libraryService.returnBook(readerVasya, bookCopyAvatar2));
 //        libraryService.borrowBook(readerIvan, bookCopyAvatar1, 2);
         libraryService.markLost(readerIvan, bookCopyAvatar1, "Сжег из-за концовки");
-        System.out.println(libraryService.returnBook(readerIvan, bookCopyAvatar1));
-        System.out.println(libraryService.findAvailableCopiesByIsbn("123124124535"));
-        System.out.println(libraryService.getAllReaders());
-        System.out.println(libraryService.getAllCopies());
-        System.out.println(libraryService.getAllLoans());
-        System.out.println(libraryService.getJournal());
-        System.out.println(libraryService.borrowBook(readerIvan, bookCopyAvatar2, 10));
-        System.out.println(libraryService.findActiveLoansByReader(readerIvan));
-        System.out.println(libraryService.findOverdueLoans(LocalDate.ofEpochDay(20)));
+//        System.out.println(libraryService.returnBook(readerIvan, bookCopyAvatar1));
+//        System.out.println(libraryService.findAvailableCopiesByIsbn("123124124535"));
+//        System.out.println(libraryService.getAllReaders());
+//        System.out.println(libraryService.getAllCopies());
+//        System.out.println(libraryService.getAllLoans());
+//        System.out.println(libraryService.getJournal());
+//        System.out.println(libraryService.borrowBook(readerIvan, bookCopyAvatar2, 10));
+//        System.out.println(libraryService.findActiveLoansByReader(readerIvan));
+//        System.out.println(libraryService.findOverdueLoans(LocalDate.ofEpochDay(20)));
+        System.out.println(HibernateConfig.getSessionFactory());
+        HibernateConfig.closeSessionFactory();
 
     }
 }
