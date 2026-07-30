@@ -1,4 +1,5 @@
 import config.HibernateConfig;
+import config.HibernateTransactionExecutor;
 import entity.Book;
 import entity.BookCopy;
 import entity.Reader;
@@ -7,6 +8,7 @@ import enums.CopyStatus;
 import enums.ReaderStatus;
 import org.hibernate.SessionFactory;
 import repository.BookCopyRepository;
+import repository.BookRepository;
 import repository.LoanRepository;
 import repository.ReaderRepository;
 import services.LibraryRules;
@@ -19,9 +21,11 @@ public class Main {
     public static void main(String[] args) {
         SessionFactory sessionFactory = HibernateConfig.getSessionFactory();
         LibraryService libraryService = new LibraryService(
+                new BookRepository(sessionFactory),
                 new ReaderRepository(sessionFactory),
                 new BookCopyRepository(sessionFactory),
                 new LoanRepository(sessionFactory),
+                new HibernateTransactionExecutor(sessionFactory),
                 new OperationJournal(),
                 new LibraryRules()
         );
@@ -47,6 +51,7 @@ public class Main {
         BookCopy bookCopyAvatar1 = new BookCopy("copy-1", book, CopyStatus.AVAILABLE);
         BookCopy bookCopyAvatar2 = new BookCopy("copy-2", book, CopyStatus.AVAILABLE);
         //BookCopy bookCopyAvatar3 = new BookCopy("copy-3", book, CopyStatus.AVAILABLE);
+        libraryService.addBook(book);
         libraryService.addReader(readerIvan);
         libraryService.addReader(readerVasya);
         // libraryService.addReader(readerPetya);
