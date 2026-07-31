@@ -20,14 +20,21 @@ import java.time.LocalDate;
 public class Main {
     public static void main(String[] args) {
         SessionFactory sessionFactory = HibernateConfig.getSessionFactory();
+        BookRepository bookRepository = new BookRepository(sessionFactory);
+        ReaderRepository readerRepository = new ReaderRepository(sessionFactory);
+        BookCopyRepository bookCopyRepository = new BookCopyRepository(sessionFactory);
+        LoanRepository loanRepository = new LoanRepository(sessionFactory);
+        HibernateTransactionExecutor hibernateTransactionExecutor = new HibernateTransactionExecutor(sessionFactory);
+        OperationJournal operationJournal = new OperationJournal();
+        LibraryRules libraryRules = new LibraryRules();
         LibraryService libraryService = new LibraryService(
-                new BookRepository(sessionFactory),
-                new ReaderRepository(sessionFactory),
-                new BookCopyRepository(sessionFactory),
-                new LoanRepository(sessionFactory),
-                new HibernateTransactionExecutor(sessionFactory),
-                new OperationJournal(),
-                new LibraryRules()
+                bookRepository,
+                readerRepository,
+                bookCopyRepository,
+                loanRepository,
+                hibernateTransactionExecutor,
+                operationJournal,
+                libraryRules
         );
         Reader readerIvan = new Reader(
                 "reader 1",
@@ -35,51 +42,20 @@ public class Main {
                 LocalDate.of(1995, 5, 15),
                 ReaderStatus.ACTIVE
         );
-        Reader readerVasya = new Reader(
-                "reader 2",
-                "Ivanov Vasiliy Kizarovich",
-                LocalDate.of(2000, 6, 25),
-                ReaderStatus.BLOCKED
-        );
-//        Reader readerPetya = new Reader(
-//                "reader 3",
-//                "Ivanov Vasiliy Kizarovich",
-//                LocalDate.of(2000, 6, 25),
-//                ReaderStatus.ACTIVE
-//        );
+
         Book book = new Book("123124124535", "Avatar", "James Kameron", 2001, BookType.PAPER);
         BookCopy bookCopyAvatar1 = new BookCopy("copy-1", book, CopyStatus.AVAILABLE);
-        BookCopy bookCopyAvatar2 = new BookCopy("copy-2", book, CopyStatus.AVAILABLE);
-        //BookCopy bookCopyAvatar3 = new BookCopy("copy-3", book, CopyStatus.AVAILABLE);
+
         libraryService.addBook(book);
         libraryService.addReader(readerIvan);
-        libraryService.addReader(readerVasya);
-        // libraryService.addReader(readerPetya);
         libraryService.addCopy(bookCopyAvatar1);
-        libraryService.addCopy(bookCopyAvatar2);
-        //libraryService.addCopy(bookCopyAvatar3);
+
         System.out.println(libraryService.borrowBook(readerIvan, bookCopyAvatar1, 10));
-//        libraryService.borrowBook(readerIvan, bookCopyAvatar1, 12);
-        System.out.println(libraryService.borrowBook(readerIvan, bookCopyAvatar1, 5));
-        System.out.println(libraryService.borrowBook(readerVasya, bookCopyAvatar2, 5));
-        System.out.println(libraryService.returnBook(readerIvan, bookCopyAvatar1));
-        System.out.println(libraryService.borrowBook(readerIvan, bookCopyAvatar1, 10));
-//        System.out.println(libraryService.returnBook(readerIvan, bookCopyAvatar1));
-//        System.out.println(libraryService.returnBook(readerIvan, bookCopyAvatar2));
-//        System.out.println(libraryService.returnBook(readerVasya, bookCopyAvatar2));
-//        System.out.println(libraryService.returnBook(readerVasya, bookCopyAvatar2));
-//        libraryService.borrowBook(readerIvan, bookCopyAvatar1, 2);
-        libraryService.markLost(readerIvan, bookCopyAvatar1, "Сжег из-за концовки");
-//        System.out.println(libraryService.returnBook(readerIvan, bookCopyAvatar1));
-//        System.out.println(libraryService.findAvailableCopiesByIsbn("123124124535"));
-//        System.out.println(libraryService.getAllReaders());
-//        System.out.println(libraryService.getAllCopies());
-//        System.out.println(libraryService.getAllLoans());
-//        System.out.println(libraryService.getJournal());
-//        System.out.println(libraryService.borrowBook(readerIvan, bookCopyAvatar2, 10));
-//        System.out.println(libraryService.findActiveLoansByReader(readerIvan));
-//        System.out.println(libraryService.findOverdueLoans(LocalDate.ofEpochDay(20)));
-        System.out.println(HibernateConfig.getSessionFactory());
+
+        //libraryService.markLost(readerIvan, bookCopyAvatar1, "Сжег из-за концовки");
+
+        System.out.println(libraryService.findActiveLoansByReader(readerIvan));
+
         HibernateConfig.closeSessionFactory();
 
     }
